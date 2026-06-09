@@ -7,10 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-slate-200 flex justify-center items-center min-h-screen font-sans select-none overflow-auto p-6">
+<body class="bg-slate-200 font-sans select-none overflow-hidden">
+  <div class="tablet-scale-stage">
 
   <!-- 카페/병원 키오스크와 동일한 세로 태블릿 프레임 -->
-  <div class="relative w-[720px] h-[1080px] bg-white rounded-[36px] shadow-2xl border-[14px] border-slate-800 flex flex-col justify-between overflow-hidden">
+  <div class="tablet-scale-frame relative w-[720px] h-[1080px] bg-white rounded-[36px] shadow-2xl border-[14px] border-slate-800 flex flex-col justify-between overflow-hidden">
 
     <!-- 상단 태블릿 카메라/센서 영역 -->
     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-slate-800 rounded-b-3xl z-50 flex items-center justify-center gap-3">
@@ -88,6 +89,31 @@
     </div>
 
   </div>
+
+  </div>
+
+  <script>
+    // 태블릿 UI는 720x1080 비율로 유지하고, 기기 화면에 맞게 전체만 축소/확대
+    function fitTabletFrame() {
+      const frame = document.querySelector('.tablet-scale-frame');
+      if (!frame) return;
+
+      const designWidth = 720;
+      const designHeight = 1080;
+      const padding = 12;
+
+      const availableWidth = window.innerWidth - padding;
+      const availableHeight = window.innerHeight - padding;
+      const scale = Math.min(availableWidth / designWidth, availableHeight / designHeight);
+
+      frame.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener('resize', fitTabletFrame);
+    window.addEventListener('orientationchange', fitTabletFrame);
+    window.addEventListener('load', fitTabletFrame);
+    fitTabletFrame();
+  </script>
 
 </body>
 </html>
