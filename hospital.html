@@ -100,12 +100,49 @@
             align-items: center;
             justify-content: center;
         }
+    
+        /* 휴대폰에서도 태블릿 비율을 유지한 채 전체 화면만 축소 */
+        html, body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        .tablet-scale-stage {
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #e2e8f0;
+        }
+
+        .tablet-scale-frame {
+            width: 720px;
+            height: 1080px;
+            transform-origin: center center;
+            flex: 0 0 auto;
+        }
+
+        @supports (height: 100dvh) {
+            .tablet-scale-stage {
+                height: 100dvh;
+                min-height: 100dvh;
+            }
+        }
+
     </style>
 </head>
-<body class="bg-slate-200 flex justify-center items-center min-h-screen font-sans select-none overflow-auto p-6">
+<body class="bg-slate-200 font-sans select-none overflow-hidden">
+  <div class="tablet-scale-stage">
 
     <!-- 키오스크 기기 프레임 -->
-    <div class="relative w-[720px] h-[1080px] bg-white rounded-[36px] shadow-2xl border-[14px] border-slate-800 flex flex-col justify-between overflow-hidden">
+    <div class="tablet-scale-frame relative w-[720px] h-[1080px] bg-white rounded-[36px] shadow-2xl border-[14px] border-slate-800 flex flex-col justify-between overflow-hidden">
         
         <!-- 상단 스피커 & 센서 영역 디테일 -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-slate-800 rounded-b-3xl z-50 flex items-center justify-center gap-3">
@@ -1117,5 +1154,30 @@
             alert(message);
         }
     </script>
+  </div>
+
+  <script>
+    // 태블릿 UI는 720x1080 비율로 유지하고, 기기 화면에 맞게 전체만 축소/확대
+    function fitTabletFrame() {
+      const frame = document.querySelector('.tablet-scale-frame');
+      if (!frame) return;
+
+      const designWidth = 720;
+      const designHeight = 1080;
+      const padding = 12;
+
+      const availableWidth = window.innerWidth - padding;
+      const availableHeight = window.innerHeight - padding;
+      const scale = Math.min(availableWidth / designWidth, availableHeight / designHeight);
+
+      frame.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener('resize', fitTabletFrame);
+    window.addEventListener('orientationchange', fitTabletFrame);
+    window.addEventListener('load', fitTabletFrame);
+    fitTabletFrame();
+  </script>
+
 </body>
 </html>
