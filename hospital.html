@@ -101,17 +101,20 @@
             justify-content: center;
         }
     
-        /* 휴대폰에서도 태블릿 비율을 유지한 채 전체 화면만 축소 */
+
+        /* 모든 기기 대응: 720x1080 태블릿 UI를 화면 가로/세로에 맞춰 온전하게 축소/확대 */
         html, body {
             width: 100%;
+            height: 100%;
             min-height: 100%;
-        }
-
-        body {
             margin: 0;
+            overflow: hidden;
+            overscroll-behavior: none;
         }
-
+        * { box-sizing: border-box; }
         .tablet-scale-stage {
+            position: fixed;
+            inset: 0;
             width: 100vw;
             height: 100vh;
             min-height: 100vh;
@@ -120,26 +123,41 @@
             justify-content: center;
             overflow: hidden;
             background: #e2e8f0;
+            touch-action: manipulation;
         }
-
-        .tablet-scale-frame {
-            width: 720px;
-            height: 1080px;
-            transform-origin: center center;
-            flex: 0 0 auto;
-        }
-
         @supports (height: 100dvh) {
             .tablet-scale-stage {
                 height: 100dvh;
                 min-height: 100dvh;
             }
         }
+        .tablet-scale-frame {
+            width: 720px;
+            height: 1080px;
+            transform-origin: center center;
+            flex: 0 0 auto;
+            will-change: transform;
+        }
+        #keypad-container,
+        #payment-modal > div,
+        #help-modal > div,
+        #lang-modal > div {
+            max-width: calc(100vw - 24px);
+            max-height: calc(100vh - 24px);
+        }
+        @supports (height: 100dvh) {
+            #keypad-container,
+            #payment-modal > div,
+            #help-modal > div,
+            #lang-modal > div {
+                max-height: calc(100dvh - 24px);
+            }
+        }
 
     </style>
 </head>
 <body class="bg-slate-200 font-sans select-none overflow-hidden">
-  <div class="tablet-scale-stage">
+    <div class="tablet-scale-stage">
 
     <!-- 키오스크 기기 프레임 -->
     <div class="tablet-scale-frame relative w-[720px] h-[1080px] bg-white rounded-[36px] shadow-2xl border-[14px] border-slate-800 flex flex-col justify-between overflow-hidden">
@@ -159,14 +177,11 @@
                 <span id="current-time">12:00</span>
             </div>
 
-            <div id="senior-mode-badge" class="mb-4 px-5 py-3 bg-teal-100 border border-teal-300 rounded-2xl flex items-center justify-between shadow-sm">
+            <div id="senior-mode-badge" class="mb-4 px-5 py-3 bg-teal-100 border border-teal-300 rounded-2xl flex items-center shadow-sm">
                 <div>
                     <div class="text-lg font-black text-teal-900">👵 시니어 쉬운 이용 모드</div>
                     <div class="text-sm font-semibold text-teal-700">큰 글씨와 큰 버튼으로 천천히 따라 하시면 됩니다.</div>
                 </div>
-                <button onclick="requestHelp()" class="px-4 py-2.5 bg-white text-teal-800 border border-teal-300 rounded-xl text-sm font-black shadow-sm active:scale-95">
-                    도움
-                </button>
             </div>
 
             <!-- [진행 단계 표시바 (Step 1~4) - 슬라이드 2부터 노출] -->
@@ -243,9 +258,6 @@
                     </div>
 
                     <div class="space-y-2">
-                        <div class="bottom-main-row">
-                            <button onclick="goToSlide(1)" class="bottom-main-btn-wide flex-1 bg-slate-200 text-slate-700 shadow hover:bg-slate-300 active:scale-95">이전 단계로</button>
-                        </div>
                         <div class="bottom-sub-grid">
                             <button onclick="goToSlide(1)" class="bottom-sub-btn bg-slate-100 text-slate-700 active:scale-95">◀ 이전</button>
                             <button onclick="resetAndRestart()" class="bottom-sub-btn bg-slate-800 text-white active:scale-95">🏠 처음</button>
@@ -282,9 +294,6 @@
                     </div>
 
                     <div class="space-y-2">
-                        <div class="bottom-main-row">
-                            <button onclick="goToSlide(2)" class="bottom-main-btn-wide flex-1 bg-slate-200 text-slate-700 shadow hover:bg-slate-300 active:scale-95">이전 단계로</button>
-                        </div>
                         <div class="bottom-sub-grid">
                             <button onclick="goToSlide(2)" class="bottom-sub-btn bg-slate-100 text-slate-700 active:scale-95">◀ 이전</button>
                             <button onclick="resetAndRestart()" class="bottom-sub-btn bg-slate-800 text-white active:scale-95">🏠 처음</button>
@@ -309,9 +318,6 @@
                     </div>
 
                     <div class="space-y-2">
-                        <div class="bottom-main-row">
-                            <button onclick="goToSlide(2)" class="bottom-main-btn-wide flex-1 bg-slate-200 text-slate-700 shadow hover:bg-slate-300 active:scale-95">이전 단계로</button>
-                        </div>
                         <div class="bottom-sub-grid">
                             <button onclick="goToSlide(2)" class="bottom-sub-btn bg-slate-100 text-slate-700 active:scale-95">◀ 이전</button>
                             <button onclick="resetAndRestart()" class="bottom-sub-btn bg-slate-800 text-white active:scale-95">🏠 처음</button>
@@ -355,11 +361,7 @@
 
                     <!-- 도움 요청 및 다음 단계 버튼 -->
                     <div class="space-y-2.5">
-                        <button onclick="requestHelp()" class="w-full py-4 bg-white text-slate-800 border-2 border-slate-800 font-bold rounded-2xl shadow hover:bg-slate-50 active:scale-95 transition-transform text-lg text-center flex items-center justify-center gap-1.5">
-                            <span>🆘 도움이 필요하면 직원을 불러주세요</span>
-                        </button>
                         <div class="bottom-main-row mt-1">
-                            <button id="slide4-back-btn" onclick="goBackFromSlide4()" class="bottom-main-btn-wide flex-1 bg-slate-200 text-slate-700 shadow hover:bg-slate-300 active:scale-95">이전 단계로</button>
                             <button onclick="verifyAndNext()" class="bottom-main-btn-wide flex-1 bg-teal-400 text-slate-900 shadow hover:bg-teal-500 active:scale-95">확인 완료</button>
                         </div>
                         <div class="bottom-sub-grid">
@@ -384,20 +386,13 @@
 
                     <!-- 하단 분기 버튼군 -->
                     <div class="space-y-2">
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <button id="slide5-confirm-btn" onclick="confirmAndFinish()" class="h-[60px] bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg rounded-2xl shadow active:scale-95 transition-transform">
                                 맞아요
                             </button>
                             <button onclick="resetAndRestart()" class="h-[60px] bg-white hover:bg-red-50 text-red-500 font-bold text-lg rounded-2xl border border-red-300 active:scale-95 transition-transform">
                                 아니요
                             </button>
-                            <button onclick="requestHelp()" class="h-[60px] bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base rounded-2xl border border-slate-300 flex items-center justify-center gap-2">
-                                <span>🆘</span>
-                                <span>도움요청</span>
-                            </button>
-                        </div>
-                        <div class="bottom-main-row">
-                            <button onclick="goToSlide(4)" class="bottom-main-btn-wide flex-1 bg-slate-200 text-slate-700 shadow hover:bg-slate-300 active:scale-95">이전 단계로</button>
                         </div>
                         <div class="bottom-sub-grid">
                             <button onclick="goToSlide(4)" class="bottom-sub-btn bg-slate-100 text-slate-700 active:scale-95">◀ 이전</button>
@@ -461,7 +456,7 @@
                 <!-- 동적 렌더링 -->
             </div>
 
-            <div class="flex gap-3"
+            <div class="flex gap-3">
                 <button onclick="closeKeypad()" class="flex-1 py-4 bg-slate-100 text-slate-700 font-bold text-lg rounded-2xl">취소</button>
                 <button onclick="applyKeypadValue()" class="flex-1 py-4 bg-teal-400 text-slate-900 font-bold text-lg rounded-2xl">입력 완료</button>
             </div>
@@ -543,6 +538,8 @@
                 닫기
             </button>
         </div>
+    </div>
+
     </div>
 
     <script>
@@ -1153,31 +1150,33 @@
         function alertCustom(message) {
             alert(message);
         }
+
+
+        // 720x1080 기준 태블릿 UI를 현재 기기 화면 안에 완전히 맞춥니다.
+        function fitTabletFrame() {
+            const frame = document.querySelector('.tablet-scale-frame');
+            if (!frame) return;
+
+            const designWidth = 720;
+            const designHeight = 1080;
+            const viewportWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+            const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            const padding = Math.min(12, Math.max(4, Math.min(viewportWidth, viewportHeight) * 0.015));
+            const scale = Math.min((viewportWidth - padding) / designWidth, (viewportHeight - padding) / designHeight);
+
+            frame.style.transform = `scale(${Math.max(0.1, scale)})`;
+        }
+
+        window.addEventListener('load', fitTabletFrame);
+        window.addEventListener('resize', fitTabletFrame);
+        window.addEventListener('orientationchange', () => setTimeout(fitTabletFrame, 120));
+        document.addEventListener('DOMContentLoaded', fitTabletFrame);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', fitTabletFrame);
+            window.visualViewport.addEventListener('scroll', fitTabletFrame);
+        }
+        fitTabletFrame();
+
     </script>
-  </div>
-
-  <script>
-    // 태블릿 UI는 720x1080 비율로 유지하고, 기기 화면에 맞게 전체만 축소/확대
-    function fitTabletFrame() {
-      const frame = document.querySelector('.tablet-scale-frame');
-      if (!frame) return;
-
-      const designWidth = 720;
-      const designHeight = 1080;
-      const padding = 12;
-
-      const availableWidth = window.innerWidth - padding;
-      const availableHeight = window.innerHeight - padding;
-      const scale = Math.min(availableWidth / designWidth, availableHeight / designHeight);
-
-      frame.style.transform = `scale(${scale})`;
-    }
-
-    window.addEventListener('resize', fitTabletFrame);
-    window.addEventListener('orientationchange', fitTabletFrame);
-    window.addEventListener('load', fitTabletFrame);
-    fitTabletFrame();
-  </script>
-
 </body>
 </html>
